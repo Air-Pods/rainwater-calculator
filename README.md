@@ -1,5 +1,11 @@
 # 雨水调蓄计算小工具
+## 在线演示
 
+GitHub Pages 访问地址：
+
+https://air-pods.github.io/rainwater-calculator/
+
+用户可以直接通过浏览器打开上述地址使用本工具，无需安装任何软件。
 一个使用原生 HTML、CSS 和 JavaScript 编写的单页雨水调蓄计算工具，适用于海绵城市、雨水调蓄、内涝治理和排水方案比选等场景的快速估算与技术说明编写。
 
 ## 主要功能
