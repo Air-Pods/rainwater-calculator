@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雨水调蓄计算小工具</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #222;
+    }
+
+    main {
+      width: 100%;
+      max-width: 760px;
+      padding: 32px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 30px;
+      margin: 0 0 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      background-color: white;
+    }
+
+    select {
+      width: 100px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #2563eb;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .secondary-button {
+      background-color: #475569;
+    }
+
+    .secondary-button:hover {
+      background-color: #334155;
+    }
+
+    .result {
+      margin-top: 22px;
+      padding: 16px;
+      line-height: 1.7;
+      background-color: #eef5ff;
+      border-radius: 6px;
+    }
+
+    .result strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .detail-section {
+      margin-top: 18px;
+      padding: 16px;
+      line-height: 1.7;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+
+    .detail-section h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .process-text {
+      margin: 0;
+      white-space: pre-wrap;
+      font-family: Arial, sans-serif;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 10px;
+      font-size: 15px;
+      line-height: 1.7;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    .copy-button {
+      margin-top: 10px;
+    }
+
+    .comparison-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .table-wrap {
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background-color: white;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid #dbe3ee;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #eef5ff;
+      font-weight: bold;
+    }
+
+    .chart-section {
+      margin-top: 18px;
+      padding: 16px;
+      background-color: white;
+      border: 1px solid #dbe3ee;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    .chart-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .chart-axis-label {
+      margin: 0;
+      font-size: 13px;
+      color: #475569;
+      text-align: center;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      min-width: 520px;
+      height: 260px;
+      margin-top: 10px;
+      padding: 20px 12px 10px;
+      border-left: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+      background: repeating-linear-gradient(
+        to top,
+        #ffffff,
+        #ffffff 49px,
+        #eef2f7 50px
+      );
+    }
+
+    .bar-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 70px;
+      height: 100%;
+    }
+
+    .bar-value {
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 54px;
+      min-height: 4px;
+      background-color: #2563eb;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .bar-label {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #334155;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .chart-note {
+      margin: 14px 0 0;
+      line-height: 1.7;
+      color: #334155;
+    }
+
+    .export-status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .export-status a {
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    .csv-preview {
+      min-height: 90px;
+      margin-top: 10px;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+    }
+
+    @media print {
+      body {
+        display: block;
+        background-color: white;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .no-print,
+      .form-group,
+      .button-row,
+      .comparison-actions,
+      .export-status,
+      .csv-preview {
+        display: none;
+      }
+
+      .detail-section,
+      .result,
+      .chart-section {
+        break-inside: avoid;
+        background-color: white;
+        border: 1px solid #dbe3ee;
+      }
+
+      textarea {
+        border: none;
+        min-height: auto;
+        resize: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>雨水调蓄计算小工具</h1>
+
+    <div class="form-group no-print">
+      <label for="area">汇水面积 A</label>
+      <div class="input-row">
+        <input id="area" type="number" step="any" placeholder="例如：100000">
+        <select id="areaUnit">
+          <option value="m2">m²</option>
+          <option value="ha">ha</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group no-print">
+      <label for="coefficient">径流系数 φ</label>
+      <input id="coefficient" type="number" step="any" placeholder="例如：0.8">
+    </div>
+
+    <div class="form-group no-print">
+      <label for="rainfall">降雨量 H（mm）</label>
+      <input id="rainfall" type="number" step="any" placeholder="例如：50">
+    </div>
+
+    <div class="form-group no-print">
+      <label for="storage">调蓄容积 Vs（m³）</label>
+      <input id="storage" type="number" step="any" placeholder="例如：20">
+    </div>
+
+    <div class="button-row no-print">
+      <button onclick="calculate()">计算</button>
+      <button class="secondary-button" onclick="fillExample()">填入示例数据</button>
+      <button class="secondary-button" onclick="clearData()">清空数据</button>
+    </div>
+
+    <div id="result" class="result">
+      请输入参数后点击计算。
+    </div>
+
+    <section class="detail-section">
+      <h2>计算过程</h2>
+      <pre id="process" class="process-text">完成计算后显示公式和代入过程。</pre>
+    </section>
+
+    <section class="detail-section">
+      <h2>计算说明</h2>
+      <textarea id="reportText" readonly placeholder="完成计算后自动生成可复制到技术报告中的计算说明。"></textarea>
+      <button class="secondary-button copy-button no-print" onclick="copyReport()">复制计算说明</button>
+    </section>
+
+    <section class="detail-section">
+      <h2>多方案比选</h2>
+      <div class="form-group no-print">
+        <label for="scenarioStorage">多个调蓄容积 Vs（m³，用英文逗号分隔）</label>
+        <input id="scenarioStorage" type="text" placeholder="例如：500, 1000, 1300, 2000">
+      </div>
+      <div class="comparison-actions no-print">
+        <button onclick="generateComparison()">生成方案比选及说明</button>
+        <button class="secondary-button" onclick="copyComparisonReport()">复制方案比选说明</button>
+        <button class="secondary-button" onclick="exportComparisonCsv()">导出CSV</button>
+        <button class="secondary-button" onclick="copyComparisonTable()">复制表格内容</button>
+      </div>
+      <div id="exportStatus" class="export-status"></div>
+      <textarea id="csvPreview" class="csv-preview" readonly placeholder="导出 CSV 后，如浏览器未自动下载，可复制这里的 CSV 内容。"></textarea>
+      <div id="comparisonTable" class="table-wrap"></div>
+      <div id="comparisonChart"></div>
+      <textarea id="comparisonReport" readonly placeholder="生成方案比选后，这里会自动形成可复制到技术报告中的比选说明。"></textarea>
+    </section>
+
+    <button class="secondary-button copy-button no-print" onclick="printReport()">打印报告</button>
+  </main>
+
+  <script>
+    let comparisonRows = [];
+
+    function getBaseInputs() {
+      const areaText = document.getElementById("area").value;
+      const areaUnit = document.getElementById("areaUnit").value;
+      const coefficientText = document.getElementById("coefficient").value;
+      const rainfallText = document.getElementById("rainfall").value;
+
+      const inputArea = Number(areaText);
+      const coefficient = Number(coefficientText);
+      const rainfall = Number(rainfallText);
+
+      if (
+        areaText === "" ||
+        coefficientText === "" ||
+        rainfallText === "" ||
+        Number.isNaN(inputArea) ||
+        Number.isNaN(coefficient) ||
+        Number.isNaN(rainfall)
+      ) {
+        alert("请先检查基础输入：汇水面积 A、径流系数 φ、降雨量 H 都必须填写数字。");
+        return null;
+      }
+
+      if (inputArea <= 0) {
+        alert("请检查输入：汇水面积 A 必须大于 0。");
+        return null;
+      }
+
+      if (coefficient <= 0 || coefficient > 1) {
+        alert("请检查输入：径流系数 φ 必须大于 0 且小于等于 1。");
+        return null;
+      }
+
+      if (rainfall <= 0) {
+        alert("请检查输入：降雨量 H 必须大于 0。");
+        return null;
+      }
+
+      const area = areaUnit === "ha" ? inputArea * 10000 : inputArea;
+      const areaDisplay = inputArea + " " + (areaUnit === "ha" ? "ha" : "m²");
+      const convertedAreaText = areaUnit === "ha" ? "，折合 " + area.toFixed(2) + " m²" : "";
+
+      return {
+        area,
+        areaDisplay,
+        convertedAreaText,
+        coefficient,
+        rainfall
+      };
+    }
+
+    function calculate() {
+      const baseInputs = getBaseInputs();
+      const storageText = document.getElementById("storage").value;
+
+      if (baseInputs === null) {
+        return;
+      }
+
+      const storage = Number(storageText);
+
+      if (
+        storageText === "" ||
+        Number.isNaN(storage)
+      ) {
+        alert("请检查输入：调蓄容积 Vs 必须填写数字。");
+        return;
+      }
+
+      if (storage <= 0) {
+        alert("请检查输入：调蓄容积 Vs 必须大于 0。");
+        return;
+      }
+
+      const area = baseInputs.area;
+      const coefficient = baseInputs.coefficient;
+      const rainfall = baseInputs.rainfall;
+      const runoffVolume = rainfall / 1000 * area * coefficient;
+      const reductionRate = storage / runoffVolume * 100;
+      const equivalentDepth = storage / area * 1000;
+      const processText =
+        "Vr = H / 1000 × A × φ = " + rainfall + " / 1000 × " + area + " × " + coefficient +
+        " = " + runoffVolume.toFixed(2) + " m³\n" +
+        "η = Vs / Vr × 100% = " + storage + " / " + runoffVolume.toFixed(2) +
+        " × 100% = " + reductionRate.toFixed(2) + "%\n" +
+        "Δh = Vs / A × 1000 = " + storage + " / " + area +
+        " × 1000 = " + equivalentDepth.toFixed(2) + " mm";
+      const reportText =
+        "根据本次雨水调蓄计算，汇水面积 A 为 " + baseInputs.areaDisplay + baseInputs.convertedAreaText +
+        "，径流系数 φ 取 " + coefficient +
+        "，降雨量 H 为 " + rainfall + " mm，调蓄容积 Vs 为 " + storage + " m³。" +
+        "经计算，总径流量 Vr 为 " + runoffVolume.toFixed(2) + " m³，径流削减率 η 为 " +
+        reductionRate.toFixed(2) + "%，等效削减水深 Δh 为 " + equivalentDepth.toFixed(2) +
+        " mm。结果表明，在本次降雨条件下，调蓄设施可对汇水范围内的雨水径流形成有效削减，" +
+        "可为海绵城市建设、雨水调蓄系统配置、内涝治理方案比选及传统排水智慧转化应用提供量化参考。";
+
+      document.getElementById("result").innerHTML =
+        "<strong>计算结果</strong>" +
+        "总径流量 Vr：" + runoffVolume.toFixed(2) + " m³<br>" +
+        "径流削减率 η：" + reductionRate.toFixed(2) + "%<br>" +
+        "等效削减水深 Δh：" + equivalentDepth.toFixed(2) + " mm<br><br>" +
+        "本次降雨条件下，总径流量约为 " + runoffVolume.toFixed(2) +
+        " m³，调蓄设施可削减约 " + reductionRate.toFixed(2) +
+        "% 的径流量，折合等效削减水深约 " + equivalentDepth.toFixed(2) + " mm。";
+      document.getElementById("process").textContent = processText;
+      document.getElementById("reportText").value = reportText;
+    }
+
+    function fillExample() {
+      document.getElementById("area").value = 100000;
+      document.getElementById("areaUnit").value = "m2";
+      document.getElementById("coefficient").value = 0.75;
+      document.getElementById("rainfall").value = 58;
+      document.getElementById("storage").value = 1300;
+      document.getElementById("scenarioStorage").value = "500, 1000, 1300, 2000";
+      document.getElementById("result").innerHTML = "示例数据已填入，请点击计算。";
+      document.getElementById("process").textContent = "完成计算后显示公式和代入过程。";
+      document.getElementById("reportText").value = "";
+      document.getElementById("comparisonTable").innerHTML = "";
+      document.getElementById("comparisonChart").innerHTML = "";
+      document.getElementById("comparisonReport").value = "";
+      document.getElementById("exportStatus").innerHTML = "";
+      document.getElementById("csvPreview").value = "";
+      comparisonRows = [];
+    }
+
+    function clearData() {
+      document.getElementById("area").value = "";
+      document.getElementById("areaUnit").value = "m2";
+      document.getElementById("coefficient").value = "";
+      document.getElementById("rainfall").value = "";
+      document.getElementById("storage").value = "";
+      document.getElementById("scenarioStorage").value = "";
+      document.getElementById("result").innerHTML = "请输入参数后点击计算。";
+      document.getElementById("process").textContent = "完成计算后显示公式和代入过程。";
+      document.getElementById("reportText").value = "";
+      document.getElementById("comparisonTable").innerHTML = "";
+      document.getElementById("comparisonChart").innerHTML = "";
+      document.getElementById("comparisonReport").value = "";
+      document.getElementById("exportStatus").innerHTML = "";
+      document.getElementById("csvPreview").value = "";
+      comparisonRows = [];
+    }
+
+    function copyReport() {
+      const reportText = document.getElementById("reportText");
+
+      if (reportText.value === "") {
+        alert("请先完成计算，再复制计算说明。");
+        return;
+      }
+
+      reportText.select();
+      document.execCommand("copy");
+      alert("计算说明已复制。");
+    }
+
+    function getEvaluation(reductionRate) {
+      if (reductionRate < 10) {
+        return "削减效果较弱";
+      }
+
+      if (reductionRate < 30) {
+        return "具有一定削减作用";
+      }
+
+      if (reductionRate < 50) {
+        return "削减效果较明显";
+      }
+
+      return "削减效果显著";
+    }
+
+    function generateComparison() {
+      const baseInputs = getBaseInputs();
+      const scenarioText = document.getElementById("scenarioStorage").value;
+
+      if (baseInputs === null) {
+        return;
+      }
+
+      if (scenarioText.trim() === "") {
+        alert("请输入多个调蓄容积 Vs，例如：500, 1000, 1300, 2000。");
+        return;
+      }
+
+      const storageValues = scenarioText.split(",").map(function(item) {
+        return Number(item.trim());
+      });
+
+      if (storageValues.some(function(value) {
+        return Number.isNaN(value) || value <= 0;
+      })) {
+        alert("请检查多方案输入：每个调蓄容积 Vs 都必须是大于 0 的数字，并用英文逗号分隔。");
+        return;
+      }
+
+      const runoffVolume = baseInputs.rainfall / 1000 * baseInputs.area * baseInputs.coefficient;
+      const rows = storageValues.sort(function(a, b) {
+        return a - b;
+      }).map(function(storage, index) {
+        const reductionRate = storage / runoffVolume * 100;
+        const equivalentDepth = storage / baseInputs.area * 1000;
+
+        return {
+          number: index + 1,
+          storage,
+          runoffVolume,
+          reductionRate,
+          equivalentDepth,
+          evaluation: getEvaluation(reductionRate)
+        };
+      });
+
+      let tableHtml =
+        "<table>" +
+        "<thead>" +
+        "<tr>" +
+        "<th>方案编号</th>" +
+        "<th>调蓄容积 Vs（m³）</th>" +
+        "<th>总径流量 Vr（m³）</th>" +
+        "<th>径流削减率 η（%）</th>" +
+        "<th>等效削减水深 Δh（mm）</th>" +
+        "<th>工程评价</th>" +
+        "</tr>" +
+        "</thead>" +
+        "<tbody>";
+
+      rows.forEach(function(row) {
+        tableHtml +=
+          "<tr>" +
+          "<td>方案 " + row.number + "</td>" +
+          "<td>" + row.storage.toFixed(2) + "</td>" +
+          "<td>" + row.runoffVolume.toFixed(2) + "</td>" +
+          "<td>" + row.reductionRate.toFixed(2) + "</td>" +
+          "<td>" + row.equivalentDepth.toFixed(2) + "</td>" +
+          "<td>" + row.evaluation + "</td>" +
+          "</tr>";
+      });
+
+      tableHtml += "</tbody></table>";
+
+      const maxChartRate = Math.max.apply(null, rows.map(function(row) {
+        return row.reductionRate;
+      }));
+      let chartHtml =
+        "<div class=\"chart-section\">" +
+        "<p class=\"chart-title\">调蓄容积 Vs — 径流削减率 η 关系图</p>" +
+        "<p class=\"chart-axis-label\">纵轴：径流削减率 η（%）</p>" +
+        "<div class=\"bar-chart\">";
+
+      rows.forEach(function(row) {
+        const barHeight = row.reductionRate / maxChartRate * 100;
+        chartHtml +=
+          "<div class=\"bar-item\">" +
+          "<div class=\"bar-value\">" + row.reductionRate.toFixed(2) + "%</div>" +
+          "<div class=\"bar\" style=\"height: " + barHeight.toFixed(2) + "%;\"></div>" +
+          "<div class=\"bar-label\">" + row.storage.toFixed(0) + " m³</div>" +
+          "</div>";
+      });
+
+      chartHtml +=
+        "</div>" +
+        "<p class=\"chart-axis-label\">横轴：调蓄容积 Vs（m³）</p>" +
+        "<p class=\"chart-note\">随着调蓄容积增加，径流削减率呈提升趋势，但单位容积带来的边际削减效果需结合用地条件、投资成本和排水系统承载能力综合判断。</p>" +
+        "</div>";
+
+      const minReductionRate = Math.min.apply(null, rows.map(function(row) {
+        return row.reductionRate;
+      }));
+      const maxReductionRate = Math.max.apply(null, rows.map(function(row) {
+        return row.reductionRate;
+      }));
+      const minEquivalentDepth = Math.min.apply(null, rows.map(function(row) {
+        return row.equivalentDepth;
+      }));
+      const maxEquivalentDepth = Math.max.apply(null, rows.map(function(row) {
+        return row.equivalentDepth;
+      }));
+      const bestRow = rows.reduce(function(best, row) {
+        return row.reductionRate > best.reductionRate ? row : best;
+      });
+      const comparisonReport =
+        "在汇水面积 A 为 " + baseInputs.areaDisplay + baseInputs.convertedAreaText +
+        "、径流系数 φ 为 " + baseInputs.coefficient +
+        "、降雨量 H 为 " + baseInputs.rainfall + " mm 的条件下，对 " + rows.length +
+        " 组调蓄容积方案进行比选。经计算，总径流量 Vr 为 " + runoffVolume.toFixed(2) +
+        " m³。各方案的径流削减率 η 介于 " + minReductionRate.toFixed(2) +
+        "% 至 " + maxReductionRate.toFixed(2) +
+        "% 之间，等效削减水深 Δh 介于 " + minEquivalentDepth.toFixed(2) +
+        " mm 至 " + maxEquivalentDepth.toFixed(2) +
+        " mm 之间。其中，方案 " + bestRow.number + " 的调蓄容积为 " +
+        bestRow.storage.toFixed(2) + " m³，径流削减率为 " +
+        bestRow.reductionRate.toFixed(2) + "%，工程评价为“" +
+        bestRow.evaluation + "”。上述比选结果可为海绵城市建设、雨水调蓄设施规模确定、内涝治理方案优化及传统排水智慧转化应用提供技术支撑。";
+
+      document.getElementById("comparisonTable").innerHTML = tableHtml;
+      document.getElementById("comparisonChart").innerHTML = chartHtml;
+      document.getElementById("comparisonReport").value = comparisonReport;
+      document.getElementById("exportStatus").innerHTML = "";
+      document.getElementById("csvPreview").value = "";
+      comparisonRows = rows;
+    }
+
+    function copyComparisonReport() {
+      const comparisonReport = document.getElementById("comparisonReport");
+
+      if (comparisonReport.value === "") {
+        alert("请先生成方案比选说明，再复制。");
+        return;
+      }
+
+      comparisonReport.select();
+      document.execCommand("copy");
+      alert("方案比选说明已复制。");
+    }
+
+    function getComparisonTableText(separator) {
+      const headers = [
+        "方案编号",
+        "调蓄容积 Vs（m³）",
+        "总径流量 Vr（m³）",
+        "径流削减率 η（%）",
+        "等效削减水深 Δh（mm）",
+        "工程评价"
+      ];
+      const lines = [headers.join(separator)];
+
+      comparisonRows.forEach(function(row) {
+        lines.push([
+          "方案 " + row.number,
+          row.storage.toFixed(2),
+          row.runoffVolume.toFixed(2),
+          row.reductionRate.toFixed(2),
+          row.equivalentDepth.toFixed(2),
+          row.evaluation
+        ].join(separator));
+      });
+
+      return lines.join("\n");
+    }
+
+    function exportComparisonCsv() {
+      if (comparisonRows.length === 0) {
+        alert("请先生成方案比选结果，再导出。");
+        return;
+      }
+
+      const csvText = getComparisonTableText(",");
+      const csvContent = "\uFEFF" + csvText;
+      const link = document.createElement("a");
+      const exportStatus = document.getElementById("exportStatus");
+      const csvPreview = document.getElementById("csvPreview");
+      const dataUrl = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+
+      link.href = dataUrl;
+      link.download = "rainwater_scheme_comparison.csv";
+      link.target = "_blank";
+      link.textContent = "如果没有自动下载，请右键点击这里，选择“链接另存为”保存 CSV";
+      exportStatus.innerHTML = "";
+      exportStatus.textContent = "已生成 CSV 下载链接。";
+      exportStatus.appendChild(document.createElement("br"));
+      exportStatus.appendChild(link);
+      csvPreview.value = csvText;
+      link.click();
+    }
+
+    function copyComparisonTable() {
+      if (comparisonRows.length === 0) {
+        alert("请先生成方案比选结果，再复制表格内容。");
+        return;
+      }
+
+      const tableText = getComparisonTableText("\t");
+      const tempTextArea = document.createElement("textarea");
+
+      tempTextArea.value = tableText;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempTextArea);
+      alert("方案比选表格内容已复制。");
+    }
+
+    function printReport() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
